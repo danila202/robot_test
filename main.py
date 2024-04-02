@@ -3,9 +3,11 @@ from fastapi import FastAPI
 import asyncio
 from contextlib import asynccontextmanager
 
+from starlette.responses import JSONResponse
+
 from db.database import create_tables
 from db.endpoint_decorators import deco_start_work, deco_end_work, robot_info
-from db.repository import write_robot_info
+from db.repository import write_robot_info, get_all_entry
 from robot import print_number
 
 
@@ -22,7 +24,7 @@ number_of_bot = 1
 
 
 
-@app.post("/start-bot/{start_number}")
+@app.post("/bot-start/{start_number}")
 @deco_start_work(number_of_bot)
 async def start_work(start_number: int):
     global number_of_bot
@@ -36,7 +38,7 @@ async def start_work(start_number: int):
 
 
 
-@app.post("/end-bot/{number_bot}")
+@app.post("/bot-end/{number_bot}")
 @deco_end_work
 async def end_work(number_bot: int):
     if tasks.get(number_bot) is not None:
@@ -50,6 +52,22 @@ async def end_work(number_bot: int):
         return {
             400: f"Такой робот не запущен. Запущенные роботы {tasks.keys()}"
         }
+
+
+@app.get("/bot-info")
+async def get_entry():
+    entries = await get_all_entry()
+    data = []
+    for entry in entries:
+        data.append(
+            {
+                "id": entry.id,
+                "start_time": entry.start_time,
+                "duration": entry.duration,
+                "date": entry.date
+            }
+        )
+    return data
 
 
 async def main():

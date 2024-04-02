@@ -1,7 +1,7 @@
 import asyncio
-from typing import Dict
+from typing import Dict, List
 import datetime
-
+from sqlalchemy import select
 from db.database import new_session, RobotLifeCycle
 
 
@@ -14,3 +14,11 @@ async def write_robot_info(number_bot: int, data: Dict[int, dict]):
         )
         session.add(robot)
         await session.commit()
+
+
+async def get_all_entry() -> List[RobotLifeCycle]:
+    async with new_session() as session:
+        query = select(RobotLifeCycle)
+        result = await session.execute(query)
+        data = result.scalars().all()
+        return data
