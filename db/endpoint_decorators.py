@@ -10,6 +10,7 @@ def deco_start_work(number_of_bot):
     def deco(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
+            nonlocal number_of_bot
             start = datetime.now()
             robot_info[number_of_bot] = \
                 {
@@ -18,6 +19,7 @@ def deco_start_work(number_of_bot):
                     'date': str(start.date())
                 }
             response = await func(*args, **kwargs)
+            number_of_bot += 1
             return response
         return wrapper
     return deco
@@ -26,8 +28,8 @@ def deco_start_work(number_of_bot):
 def deco_end_work(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        robot_info[kwargs.get('number_bot')]['duration'] = \
-            round((datetime.now() - robot_info[kwargs.get('number_bot')]['start_time']).total_seconds())
+        robot_info[kwargs['number_bot']]['duration'] = \
+            round((datetime.now() - robot_info[kwargs['number_bot']]['start_time']).total_seconds())
         result = await func(*args, **kwargs)
 
         return result
