@@ -1,10 +1,19 @@
 import uvicorn
 from fastapi import FastAPI
 import asyncio
+from contextlib import asynccontextmanager
+from database import create_tables
 
 from robot import print_number
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await create_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 tasks = {}
 number_of_bot = 1
