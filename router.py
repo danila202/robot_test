@@ -34,12 +34,14 @@ async def end_work(number_bot: int):
         kill_bot = tasks.get(number_bot)
         kill_bot.cancel()
         await write_robot_info(number_bot, robot_info)
+        del tasks[number_bot]
+
         return {
             200: "OK"
         }
     else:
         return {
-            400: f"Такой робот не запущен. Запущенные роботы {tasks.keys()}"
+            400: f"Такой робот не запущен. Запущенные роботы {[*tasks.keys()]}"
         }
 
 
@@ -59,7 +61,5 @@ async def get_entry():
     return data
 
 
-async def main():
-    for task in tasks.values():
-        await task
+
 
